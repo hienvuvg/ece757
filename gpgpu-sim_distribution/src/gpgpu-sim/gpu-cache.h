@@ -386,6 +386,11 @@ protected:
 
     int m_core_id; // which shader core is using this
     int m_type_id; // what kind of cache is this (normal, texture, constant)
+public:
+    std::unordered_map<unsigned,std::vector<new_addr_type>> my_map;
+    unsigned chk_idx;
+    new_addr_type chk_tag;
+    unsigned chk_stat;
 };
 
 class mshr_table {
@@ -611,6 +616,7 @@ public:
     // accessors for cache bandwidth availability 
     bool data_port_free() const { return m_bandwidth_management.data_port_free(); } 
     bool fill_port_free() const { return m_bandwidth_management.fill_port_free(); } 
+    tag_array*  m_tag_array;
 
 protected:
     // Constructor that can be used by derived classes with custom tag arrays
@@ -632,7 +638,7 @@ protected:
 protected:
     std::string m_name;
     cache_config &m_config;
-    tag_array*  m_tag_array;
+    //tag_array*  m_tag_array;
     mshr_table m_mshrs;
     std::list<mem_fetch*> m_miss_queue;
     enum mem_fetch_status m_miss_queue_status;

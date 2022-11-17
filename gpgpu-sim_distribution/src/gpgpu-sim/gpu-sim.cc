@@ -81,6 +81,7 @@ bool g_interactive_debugger_enabled=false;
 
 unsigned long long  gpu_sim_cycle = 0;
 unsigned long long  gpu_tot_sim_cycle = 0;
+unsigned long long  repeat_cnt = 0;
 
 
 // performance counter for stalls due to congestion.
@@ -716,10 +717,47 @@ void gpgpu_sim::init()
 #endif
 }
 
+void gpgpu_sim::chk_repeat_cnt(){
+
+    for(int i=0;i<15;i++){
+       if(m_cluster[i]->m_core[0]->m_ldst_unit->m_L1D->m_tag_array->chk_stat==1) {
+          new_addr_type tag = m_cluster[i]->m_core[0]->m_ldst_unit->m_L1D->m_tag_array->chk_tag;
+          unsigned idx = m_cluster[i]->m_core[0]->m_ldst_unit->m_L1D->m_tag_array->chk_idx;
+          for(int j=0;j<15;j++) {
+            if(j==i) continue;
+            else {
+              if(m_cluster[j]->m_core[0]->m_ldst_unit->m_L1D->m_tag_array->my_map.find(idx) != m_cluster[j]->m_core[0]->m_ldst_unit->m_L1D->m_tag_array->my_map.end()) {
+                 if(std::find(m_cluster[j]->m_core[0]->m_ldst_unit->m_L1D->m_tag_array->my_map[idx].begin(),m_cluster[j]->m_core[0]->m_ldst_unit->m_L1D->m_tag_array->my_map[idx].end(),tag)!=m_cluster[j]->m_core[0]->m_ldst_unit->m_L1D->m_tag_array->my_map[idx].end()) repeat_cnt++;
+              }
+            }
+          }
+       }
+
+    }
+
+}
+
+
 void gpgpu_sim::update_stats() {
     m_memory_stats->memlatstat_lat_pw();
     gpu_tot_sim_cycle += gpu_sim_cycle;
     gpu_tot_sim_insn += gpu_sim_insn;
+//    for(int i=0;i<2;i++){
+//       if(m_cluster[i]->m_core[0]->m_ldst_unit->m_L1D->m_tag_array->chk_stat==1) {
+//          new_addr_type tag = m_cluster[i]->m_core[0]->m_ldst_unit->m_L1D->m_tag_array->chk_tag;
+//          unsigned idx = m_cluster[i]->m_core[0]->m_ldst_unit->m_L1D->m_tag_array->chk_idx;
+//          for(int j=0;j<2;j++) {
+//            if(j==i) continue;
+//            else {
+//              if(m_cluster[j]->m_core[0]->m_ldst_unit->m_L1D->m_tag_array->my_map.find(idx) != m_cluster[j]->m_core[0]->m_ldst_unit->m_L1D->m_tag_array->my_map.end()) {
+//                 if(std::find(m_cluster[j]->m_core[0]->m_ldst_unit->m_L1D->m_tag_array->my_map[idx].begin(),m_cluster[j]->m_core[0]->m_ldst_unit->m_L1D->m_tag_array->my_map[idx].end(),tag)!=m_cluster[j]->m_core[0]->m_ldst_unit->m_L1D->m_tag_array->my_map[idx].end()) repeat_cnt++;
+//              }
+//            }
+//          }
+//       }
+//
+//    }
+
 }
 
 void gpgpu_sim::print_stats()
@@ -893,6 +931,7 @@ void gpgpu_sim::gpu_print_stat()
    printf("gpu_tot_sim_insn = %lld\n", gpu_tot_sim_insn+gpu_sim_insn);
    printf("gpu_tot_ipc = %12.4f\n", (float)(gpu_tot_sim_insn+gpu_sim_insn) / (gpu_tot_sim_cycle+gpu_sim_cycle));
    printf("gpu_tot_issued_cta = %lld\n", gpu_tot_issued_cta);
+   printf("repeat_cnt = %lld\n", repeat_cnt);
 
 
 
@@ -1240,6 +1279,7 @@ void gpgpu_sim::cycle()
           asm("int $03");
       }
       gpu_sim_cycle++;
+      chk_repeat_cnt();
       if( g_interactive_debugger_enabled ) 
          gpgpu_debug();
 

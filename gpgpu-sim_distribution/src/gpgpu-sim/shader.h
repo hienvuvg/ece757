@@ -1118,6 +1118,7 @@ public:
     void get_L1D_sub_stats(struct cache_sub_stats &css) const;
     void get_L1C_sub_stats(struct cache_sub_stats &css) const;
     void get_L1T_sub_stats(struct cache_sub_stats &css) const;
+    l1_cache *m_L1D; // data cache
 
 protected:
     ldst_unit( mem_fetch_interface *icnt,
@@ -1165,7 +1166,7 @@ protected:
 
    tex_cache *m_L1T; // texture cache
    read_only_cache *m_L1C; // constant cache
-   l1_cache *m_L1D; // data cache
+   //l1_cache *m_L1D; // data cache
    std::map<unsigned/*warp_id*/, std::map<unsigned/*regnum*/,unsigned/*count*/> > m_pending_writes;
    std::list<mem_fetch*> m_response_fifo;
    opndcoll_rfu_t *m_operand_collector;
@@ -1818,7 +1819,7 @@ public:
     std::vector<pipeline_stage_name_t> m_dispatch_port;
     std::vector<pipeline_stage_name_t> m_issue_port;
     std::vector<simd_function_unit*> m_fu; // stallable pipelines should be last in this array
-    ldst_unit *m_ldst_unit;
+    //ldst_unit *m_ldst_unit;
     static const unsigned MAX_ALU_LATENCY = 512;
     unsigned num_result_bus;
     std::vector< std::bitset<MAX_ALU_LATENCY>* > m_result_bus;
@@ -1831,6 +1832,8 @@ public:
     // is that the dynamic_warp_id is a running number unique to every warp
     // run on this shader, where the warp_id is the static warp slot.
     unsigned m_dynamic_warp_id;
+public:
+    ldst_unit *m_ldst_unit;
 };
 
 class simt_core_cluster {
@@ -1877,6 +1880,7 @@ public:
     void get_L1T_sub_stats(struct cache_sub_stats &css) const;
 
     void get_icnt_stats(long &n_simt_to_mem, long &n_mem_to_simt) const;
+    shader_core_ctx **m_core;
 
 private:
     unsigned m_cluster_id;
@@ -1884,7 +1888,7 @@ private:
     const shader_core_config *m_config;
     shader_core_stats *m_stats;
     memory_stats_t *m_memory_stats;
-    shader_core_ctx **m_core;
+    //shader_core_ctx **m_core;
 
     unsigned m_cta_issue_next_core;
     std::list<unsigned> m_core_sim_order;

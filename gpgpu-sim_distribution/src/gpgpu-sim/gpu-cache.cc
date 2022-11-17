@@ -232,6 +232,8 @@ enum cache_request_status tag_array::access( new_addr_type addr, unsigned time, 
     m_access++;
     shader_cache_access_log(m_core_id, m_type_id, 0); // log accesses to cache
     enum cache_request_status status = probe(addr,idx);
+    new_addr_type my_tag = m_config.tag(addr);
+    chk_stat =0;
     switch (status) {
     case HIT_RESERVED: 
         m_pending_hit++;
@@ -240,13 +242,25 @@ enum cache_request_status tag_array::access( new_addr_type addr, unsigned time, 
         break;
     case MISS:
         m_miss++;
+        my_map[idx].push_back(my_tag);//push tag 
         shader_cache_access_log(m_core_id, m_type_id, 1); // log cache misses
+        chk_stat = 1;
+        chk_tag = my_tag;
+        chk_idx = idx;
         if ( m_config.m_alloc_policy == ON_MISS ) {
             if( m_lines[idx].m_status == MODIFIED ) {
                 wb = true;
                 evicted = m_lines[idx];
+                for(unsigned i=0;i<my_map[idx].size();i++){
+                     if(my_map[idx][i] ==evicted.m_tag) {
+                        my_map[idx].erase(my_map[idx].begin() + i);
+                        break;
+                     }
+                }
+ 
             }
             m_lines[idx].allocate( m_config.tag(addr), m_config.block_addr(addr), time );
+             
         }
         break;
     case RESERVATION_FAIL:
