@@ -51,14 +51,14 @@ MPILNKOPTS := $(shell $(OPENMPI_BINDIR)mpicxx --showme:link) # extract the requi
 N ?= 6
 HOSTNAME=$(shell hostname | awk '/aamodt/ {print 1;} /arch/ {print 1;}')
 ifeq ($(HOSTNAME),1)
-INCLUDES = -Dp_N=$(N) -DNDG3d -DCUDA -I/opt/local/include -I/usr/include/malloc -I$(HDRDIR) -I/usr/include/mpich
+INCLUDES = -Dp_N=$(N) -DNDG3d -DCUDA -I/opt/local/include -I/usr/include/malloc -I$(HDRDIR) -I/opt/mpich/include
 else
-INCLUDES = -Dp_N=$(N) -DNDG3d -DCUDA -I/opt/local/include -I/usr/include/malloc -I$(HDRDIR) -I/usr/include/mpich
+INCLUDES = -Dp_N=$(N) -DNDG3d -DCUDA -I/opt/local/include -I/usr/include/malloc -I$(HDRDIR)  
 endif
 
-NEWCC = $(OPENMPI_BINDIR)mpicc.mpich2
-NEWLD = $(OPENMPI_BINDIR)mpicxx.mpich2
-NEWCPP = $(OPENMPI_BINDIR)mpicxx.mpich2
+NEWCC = $(OPENMPI_BINDIR)mpicc
+NEWLD = $(OPENMPI_BINDIR)mpicxx
+NEWCPP = $(OPENMPI_BINDIR)mpicxx
 ###############################################################################
 # Rules and targets
 
