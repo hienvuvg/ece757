@@ -13,6 +13,6 @@ mkdir ~/test # make directory at root
 cp configs/GTX480/* ~/test/. # copy GTX480 configuration from gpgpu-sim to test
 
 cd ~/ispass2009-benchmarks
-./setup_config.sh --cleanup
+#./setup_config.sh --cleanup
 ./setup_config.sh 
 make -f Makefile.ispass-2009 
